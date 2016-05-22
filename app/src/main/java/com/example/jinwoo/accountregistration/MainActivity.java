@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,28 +19,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        AccountRegistration accountRegistration = new AccountRegistration(this);
+        AccountRegistration accountRegistration1 = new AccountRegistration(this, 3);
+        accountRegistration1.addField("test", true);
+        accountRegistration1.addEmailField(true);
+        accountRegistration1.addPasswordField(true);
+        accountRegistration1.addRegisterButton();
 
-        accountRegistration.createTextField("test", true);
-        accountRegistration.createTextField("aaaa", true);
-        accountRegistration.createTextField("2aaaaaa", true);
-        accountRegistration.createTextField("3a3aaaaa", true);
-        accountRegistration.createTextField("4aaaaaa", true);
-
-        accountRegistration.createPasswordField(true);
-
-        accountRegistration.createEmailField(true);
-
-        setContentView(accountRegistration.getRegistrationLayout());
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        setContentView(accountRegistration1.getAccountRegistrationForm());
     }
 
     @Override

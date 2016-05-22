@@ -6,6 +6,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -20,184 +21,104 @@ import java.util.Vector;
  */
 public class AccountRegistration extends LinearLayout {
     // View variables.
-    private LinearLayout fieldContainer;    // The layout that will include all of the registration fields.
-    ViewGroup.LayoutParams linearLayoutParams, layoutParamsWrap, layoutParamsMatch, layoutParams;   // TODO: hårdkodat
+    private LinearLayout linearLayout;
 
     // Account data variables.
-    private String password, username, email, company, firstName, lastName, day, month, year, Gender;
-    private Vector<Boolean> inputComplete;
-    private Vector<Boolean> isMandatory;
-    private int index = 0;
+    private String[] accountData;
+    private int nrfields;
+    private int counterMandatoryFields = 0;
+    private boolean allMandatoryFieldsFilled = false;
+//    private boolean[] inputComplete;
+//    private boolean[] isMandatory;
 
-    /*
-        TODO: TROR INDEX ÄR FEL, kolla print outsen.
-
-        TODO: Getters för alla variabler.
-
-
-     */
-
-
-    public AccountRegistration(Context context) {
+    public AccountRegistration(Context context, int theNrfields) {
         super(context);
+        nrfields = theNrfields;
         init();
     }
 
-    public AccountRegistration(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+    /* 5. Sist i accountregistraton sätter du en register knapp.
+     */
+    private void init() {
+        // Linear layout parameters. All of the fields will be added to this linear layout.
+        linearLayout = new LinearLayout(getContext());
+        ViewGroup.LayoutParams linearLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        linearLayout.setLayoutParams(linearLayoutParams);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setHorizontalGravity(Gravity.CENTER);
+
+        accountData = new String[nrfields]; // The String with the account information.
+    }
+    public LinearLayout getAccountRegistrationForm(){return this.linearLayout;}
+
+    // TODO: Add "*" for mandatory fields.
+    public void addField(String label, boolean mandatory){
+        // Create a new field.
+        RegistrationField registrationField = new RegistrationField(getContext(), label, mandatory);
+        // Add it to the linear layout.
+        linearLayout.addView(registrationField);
+        if(mandatory) counterMandatoryFields++;
     }
 
-    public AccountRegistration(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+    public void addEmailField(boolean mandatory){
+        RegistrationField emailField = new RegistrationField(getContext(), "Email", mandatory);
+        linearLayout.addView(emailField);
+        if(mandatory) counterMandatoryFields++;
     }
 
-    public AccountRegistration(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+    public void addPasswordField(boolean mandatory){
+        RegistrationField passwordField = new RegistrationField(getContext(), "Password", mandatory);
+        linearLayout.addView(passwordField);
+        if(mandatory) counterMandatoryFields++;
     }
 
-    private void init(){
-        password = "";
-        username = "";
-        email = "";
-        company = "";
-        firstName = "";
-        lastName = "";
-        day = "";
-        month = "";
-        year = "";
-
-        inputComplete = new Vector<Boolean>();
-        isMandatory = new Vector<Boolean>();
-
-        // Layout parameters.
-        linearLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParamsWrap = new ViewGroup.LayoutParams(270, ViewGroup.LayoutParams.WRAP_CONTENT); //TODO: hårdkodat
-        layoutParamsMatch = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams = new ViewGroup.LayoutParams(750, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        // Create a vertical linear layout which the fields will be added into.
-        fieldContainer = new LinearLayout(getContext());
-        fieldContainer.setOrientation(LinearLayout.VERTICAL);
-        fieldContainer.setLayoutParams(linearLayoutParams);
-        fieldContainer.setHorizontalGravity(Gravity.CENTER);    // Needed to center the register button.
-
-        // Init listeners.
-
+    public void addBirthField(boolean isMandatory){
+        // Parse string to ints.
     }
 
-    // Return the account registration layout.
-    public LinearLayout getRegistrationLayout(){
-
-        // Add the "register" button.
+    public void addRegisterButton(){
         Button registerButton = new Button(getContext());
         registerButton.setText("Register");
-        registerButton.setGravity(Gravity.CENTER);
-        ViewGroup.LayoutParams buttonParams = new ViewGroup.LayoutParams(600, ViewGroup.LayoutParams.WRAP_CONTENT);
-        registerButton.setLayoutParams(buttonParams);
 
-        // Button listener.
+        // If the register button is clicked.
         registerButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // If all of the mandatory fields have been inputted then save the inputs.
-                for(int i = 0; i < isMandatory.size(); i++){
+//                registerUser();
+                int nrMandatoryFieldsFilled = 0;
 
-                    // TODO: Basically, if all of the inputComplete are true at the indexes that should be true, save input.
-                    if(isMandatory.get(i)){
-                        if(inputComplete.get(i)){
-                            System.out.println("Saved user inputs.");
-                            // TODO: BUT HOW? när editText.getText är inne i createTextField?
+                // Loop through all of the fields and get the input
+                // and save it if all of the mandatory fields are true.
+                for(int i = 0; i < nrfields; i++){
+                    RegistrationField tempRegField = ((RegistrationField) linearLayout.getChildAt(i));
+                    if(tempRegField.getInputComplete()){
+                        nrMandatoryFieldsFilled++;
+                    }
+
+                    if(nrMandatoryFieldsFilled == counterMandatoryFields){
+                        // Save account information.
+                        for(int k = 0; k < nrfields; k++){
+                            RegistrationField tempField = ((RegistrationField) linearLayout.getChildAt(k));
+                            EditText tempEditText = (EditText) tempField.findViewById(R.id.editText);
+                            TextView tempTextView = (TextView) tempField.findViewById(R.id.textView);
+                            System.out.println(tempEditText.getText().toString());
+
+                            // TODO: Get the text from the TextView and use as a key for the information?
+
+                            // Save the text from the EditText field.
+                            accountData[k] = tempEditText.getText().toString();
+                            System.out.println("accountData[" + k + "] = " + accountData[k]);
                         }
-
-                    }
-                }
-
-            }
-        });
-
-        // Add the button to the view.
-        fieldContainer.addView(registerButton);
-
-        return fieldContainer;
-    }
-
-    public void createTextField(String label, final boolean mandatory){
-        // TODO: Vector<Strings> so we can add variables dynamically.
-
-        // Keep track of the mandatory fields.
-        isMandatory.add(index, mandatory);
-
-        // Temp linear layout.
-        LinearLayout linearLayout = new LinearLayout(getContext());
-        linearLayout.setOrientation(HORIZONTAL);
-        linearLayout.setLayoutParams(layoutParamsMatch);
-
-        // The TextView and the EditText.
-        TextView textView = new TextView(getContext());
-        textView.setText(label);
-        textView.setPadding(10, 5, 5, 5);
-        textView.setLayoutParams(layoutParamsWrap);
-
-        EditText editText = new EditText(getContext());
-        editText.setPadding(10, 5, 5, 5);
-        editText.setLayoutParams(layoutParams);
-
-        // If it's a text field for a password or an email.
-        if(label == "Password"){
-            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        }
-        else if(label == "Email"){
-            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        }
-
-        // Add a listener.
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // If the user input has been inputted.
-                if(s.length() == 4) {
-                    System.out.println("User input complete!");
-                    inputComplete.addElement(true);
-                }
-                else{
-                    System.out.println("Index = " + index);
-                    if(!inputComplete.isEmpty() && inputComplete.get(index) == null){
-                        inputComplete.addElement(false);
                     }
                 }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
         });
 
-        // Add the views the layout.
-        linearLayout.addView(textView);
-        linearLayout.addView(editText);
-        fieldContainer.addView(linearLayout);
-
-        index++;
+        linearLayout.addView(registerButton);
     }
 
-    public void createEmailField(boolean isMandatory){
-        createTextField("Email", isMandatory);
-    }
+    public void registerUser(){
 
-    public void createPasswordField(boolean isMandatory){
-        createTextField("Password", isMandatory);
-    }
 
-    public void createBirthField(boolean isMandatory){
-        // Parse string to ints.
     }
 }
