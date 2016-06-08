@@ -5,24 +5,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.Hashtable;
+
 public class MainActivity extends AppCompatActivity {
+    public Hashtable<String, String> accountInformation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
         // The registration form.
-        AccountRegistration accountRegistration = new AccountRegistration(this, 4);
+        final AccountRegistration accountRegistration = new AccountRegistration(this, 4);
         accountRegistration.addField("test", false);
         accountRegistration.addEmailField(true);
         accountRegistration.addPasswordField(true);
         accountRegistration.addNumericField("Age", false);
 
-        // Add the register button.
+        // Finally add the register button.
         accountRegistration.addRegisterButton();
+
+        accountRegistration.setMandatoryFieldsListener(new AccountRegistration.mandatoryFieldsListener() {
+            @Override
+            public void onAccountInformationSaved(Hashtable<String, String> theAccountInformation) {
+                accountInformation = theAccountInformation;
+                // DEBUG, print the data from the hashtable.
+                for (String key : accountInformation.keySet()) {System.out.println("Key = " + key);}
+                for (String value : accountInformation.values()) {System.out.println("Value = " + value);}
+            }
+        });
 
         setContentView(accountRegistration.getAccountRegistrationForm());
     }

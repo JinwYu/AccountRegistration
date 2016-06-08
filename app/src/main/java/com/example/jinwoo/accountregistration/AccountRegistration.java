@@ -36,10 +36,18 @@ public class AccountRegistration extends LinearLayout {
     private int nrfields;
     private int counterMandatoryFields = 0;
 
+    // Misc variables.
+    private mandatoryFieldsListener listener;
+
     public AccountRegistration(Context context, int theNrfields) {
         super(context);
         nrfields = theNrfields + 1; // Plus one is for the TextView for the error message at the top of the linear layout.
         init();
+    }
+
+    public interface mandatoryFieldsListener {
+        // When the account information can be saved.
+        public void onAccountInformationSaved(Hashtable<String, String> accountInformation);
     }
 
     private void init() {
@@ -157,6 +165,11 @@ public class AccountRegistration extends LinearLayout {
                                 System.out.println("numericAccountData[" + key + "] = " + parseNumericData(key));
                             }
 
+                            // Fire the listener and send the account information.
+                            if (listener != null) {
+                                listener.onAccountInformationSaved(allAccountData);
+                            }
+
                             // Update the message text fields.
                             errorMessage.setText("");   // Delete the error message.
                             registrationSuccessful.setText("The registration was successful, welcome!");
@@ -188,4 +201,9 @@ public class AccountRegistration extends LinearLayout {
         return tempInteger;
     }
 
+    /**
+     * Saves the account information if all mandatory fields are filled.
+     * @param listener
+     */
+    public void setMandatoryFieldsListener(mandatoryFieldsListener listener) {this.listener = listener;}
 }
